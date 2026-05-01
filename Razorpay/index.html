@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RazorPay Checkout - Premium Store</title>
+    <link rel="icon" href="data:,">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+
+    <div class="checkout-card">
+        <div class="product-image-container">
+            <div id="product"></div>
+        </div>
+
+        <div class="product-details">
+            <h1 class="product-title">Premium Cotton T-Shirt</h1>
+            <p class="product-desc">Experience ultimate comfort with our 100% organic cotton tee. Perfect for everyday
+                wear and designed to last.</p>
+
+            <div class="price-container">
+                <span class="price-label">Total Amount</span>
+                <span class="price-value">₹<span id="price">1</span></span>
+            </div>
+
+            <!-- This is neccesary for payments, onclick event is fired on this button -->
+            <button id="rzp-button1">Pay Now</button>
+
+            <div class="secure-badge">
+                <svg viewBox="0 0 24 24">
+                    <path
+                        d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" />
+                </svg>
+                Secure payment powered by Razorpay
+            </div>
+        </div>
+    </div>
+
+    <!-- Required for payments, it is provided by razorpay -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+    <!-- Main logic for payments -->
+    <script>
+        // onClick event is fired on this button
+        document.getElementById("rzp-button1").onclick = async function (e) {
+            e.preventDefault();
+
+            try {
+                // 1. Fetch price from above html file
+                const orderOptions = {
+                    amount: Number(document.getElementById("price").textContent) * 100, // in paise
+                    currency: "INR",
+                    receipt: "receipt_order_121", // random for your rememberness like database id
+                };
+
+                // 2. Send order details to backend for creating uniqe order id from razorpay 
+                const response = await fetch("http://localhost:3000/createOrder", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(orderOptions),
+                });
+
+                const data = await response.json();
+                console.log("Order created from index.html:", data);
+
+                // 2.1 Check if order is created successfully
+                if (!data.success) {
+                    alert("Error creating order: " + data.message);
+                    console.log("Error creating order from index.html:", data.message);
+                    return;
+                }
+
+                // 3. Initialize RazorPay - handler function(js) checkout code copied from razorpay docs
+                const options = {
+                    key: data.key_id, // razorpay key id is sent from backend as environment variable
+                    amount: data.order.amount, // amount is in paise
+                    currency: data.order.currency, // currency
+                    name: "VeyondTech", // name of the company
+                    description: "Order for Premium T-Shirt", // description of the product
+                    image: "https://d6xcmfyh68wv8.cloudfront.net/assets/internationaldemo/demo-tshirt.svg", // image of the product
+                    order_id: data.order.id, // order id is sent from backend
+
+                    // handler function is called after payment is successful - used for validation and redirection
+                    handler: async function (response) {
+                        alert("Payment ID: " + response.razorpay_payment_id);
+                        alert("Order ID: " + response.razorpay_order_id);
+                        alert("Signature: " + response.razorpay_signature);
+                        console.log("Payment successful from index.html:", response);
+
+                        // 3.1 validating payment - sending all details to backend for validation
+                        const validateResponse = await fetch("http://localhost:3000/order/validate", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ ...response }),
+                        })
+
+                        const vData = await validateResponse.json();
+                        console.log("Validation response from index.html:", vData);
+
+                        // 3.2 checking if payment is valid or not - redirecting to success or failure page
+                        if (vData.success) {
+                            alert("Payment is valid");
+                            window.location.href = "http://localhost:3000/success";
+                        } else {
+                            alert("Payment is invalid");
+                            window.location.href = "http://localhost:3000/failure";
+                        }
+                    },
+                    // prefill - for auto filling user details in checkout form - optional
+                    prefill: {
+                        name: "Pranav Shilu",
+                        email: "pranavshilu@zohomail.in",
+                        contact: "1234567890",
+                    },
+                    theme: {
+                        color: "#3399cc",
+                    },
+                };
+
+                // razorpay object - take options created above
+                const rzp1 = new Razorpay(options);
+
+                // event for handling payment failure
+                rzp1.on("payment.failed", function (response) {
+                    alert("Error Code: " + response.error.code);
+                    alert("Description: " + response.error.description);
+                    console.log(
+                        "Error during payment from index.html:",
+                        response.error,
+                    );
+                    window.location.href = "http://localhost:3000/failure";
+                });
+
+                // open checkout form
+                rzp1.open();
+            } catch (err) {
+                console.error(err);
+                alert("Something went wrong! Check console.");
+            }
+        };
+    </script>
+
+</body>
+
+</html>

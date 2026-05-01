@@ -1,0 +1,182 @@
+:root {
+    --primary: #3399cc;
+    --primary-dark: #2877a3;
+    --bg: #f8fafc;
+    --text: #1e293b;
+    --text-light: #64748b;
+    --card-bg: #ffffff;
+    --success: #22c55e;
+    --success-bg: #f0fdf4;
+    --danger: #ef4444;
+    --danger-bg: #fef2f2;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+}
+
+/* Common Container/Card Styles */
+.checkout-card, .container {
+    background: var(--card-bg);
+    border-radius: 20px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+    text-align: center;
+}
+
+.checkout-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Index Page Specifics */
+.product-image-container {
+    background-color: #f1f5f9;
+    height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+#product {
+    width: 260px;
+    height: 260px;
+    background: url(https://d6xcmfyh68wv8.cloudfront.net/assets/internationaldemo/demo-tshirt.svg) no-repeat center;
+    background-size: contain;
+}
+
+.product-details {
+    padding: 24px;
+    text-align: left;
+}
+
+.product-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    color: var(--text);
+}
+
+.product-desc {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    margin-bottom: 24px;
+    line-height: 1.5;
+}
+
+.price-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-top: 16px;
+    border-top: 1px solid #f1f5f9;
+}
+
+.price-label {
+    font-weight: 500;
+    color: var(--text-light);
+}
+
+.price-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+#rzp-button1, .btn {
+    width: 100%;
+    background-color: var(--primary);
+    color: white !important;
+    border: none;
+    padding: 16px;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-block;
+    box-sizing: border-box;
+}
+
+#rzp-button1:hover, .btn:hover {
+    background-color: var(--primary-dark);
+    transform: scale(1.02);
+}
+
+.secure-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+    font-size: 0.8rem;
+    color: var(--text-light);
+}
+
+.secure-badge svg {
+    width: 14px;
+    height: 14px;
+    fill: #10b981;
+}
+
+/* Success/Failure Specifics */
+.container {
+    padding: 40px;
+    text-align: center;
+}
+
+.icon-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 24px;
+}
+
+.success-icon-circle { background-color: var(--success-bg); }
+.failure-icon-circle { background-color: var(--danger-bg); }
+
+.icon {
+    font-size: 40px;
+    font-weight: bold;
+}
+
+.success-icon { color: var(--success); }
+.failure-icon { color: var(--danger); font-size: 32px; }
+
+.status-title {
+    margin: 0 0 12px 0;
+    font-size: 1.75rem;
+}
+
+.success-title { color: #065f46; }
+.failure-title { color: #991b1b; }
+
+.status-desc {
+    color: var(--text-light);
+    margin-bottom: 32px;
+    line-height: 1.6;
+}
+
+.btn-dark {
+    background-color: var(--text);
+}
+
+.btn-dark:hover {
+    background-color: #0f172a;
+}
