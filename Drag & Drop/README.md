@@ -1,16 +1,88 @@
-# React + Vite
+# Drag & Drop File Upload in React
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This project demonstrates how to implement a drag-and-drop file upload feature in a React application using the `react-dropzone` library.
 
-Currently, two official plugins are available:
+## Libraries Used
+- **`react-dropzone`**: A simple React hook to create an HTML5-compliant drag-and-drop zone for files.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Step-by-Step Implementation Guide
 
-## React Compiler
+### 1. Installation
+Install the necessary dependency:
+```bash
+npm install react-dropzone
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 2. Import the Hook
+In your component (e.g., `App.jsx`), import the `useDropzone` hook from the library.
+```jsx
+import { useDropzone } from "react-dropzone";
+import { useState, useCallback } from "react";
+```
 
-## Expanding the ESLint configuration
+### 3. Setup `useDropzone` Hook
+Define the `onDrop` callback to handle both accepted and rejected files. Configure the hook with options like `multiple`, `maxFiles`, and `accept` to restrict file types.
+```jsx
+const onDrop = useCallback((acceptedFiles, fileRejections) => {
+  setError(""); // Clear previous errors
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+  if (fileRejections.length > 0) {
+    setFile(null);
+    setError("Only PDF/DOC/DOCX under 5MB allowed");
+    return;
+  }
+
+  if (acceptedFiles.length > 0) {
+    setFile(acceptedFiles[0]); // Save the accepted file to state
+  }
+}, []);
+
+const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  onDrop,
+  multiple: false, // Only allow one file at a time
+  maxFiles: 1,
+  accept: {
+    "application/pdf": [".pdf"],
+    "application/msword": [".doc", ".docx"],
+  },
+});
+```
+
+### 4. Render the Dropzone UI
+Use `getRootProps` and `getInputProps` (returned from the hook) to bind the dropzone functionality to your UI elements. You can conditionally style the dropzone using `isDragActive`.
+```jsx
+<div
+  {...getRootProps()}
+  style={{
+    border: "2px dashed #aaa",
+    padding: "30px",
+    background: isDragActive ? "#f0f8ff" : "#fff",
+  }}
+>
+  <input {...getInputProps()} />
+  {isDragActive ? (
+    <p>Drop resume here…</p>
+  ) : (
+    <p>Drag & drop resume or click to upload</p>
+  )}
+</div>
+```
+
+### 5. Access File Details & Form Submission
+Once a file is selected or dropped, it's stored in your component state. You can access its properties (like name, size, type) and handle the form submission.
+```jsx
+const handleUpload = (e) => {
+  e.preventDefault();
+  if (!file) return;
+
+  // Extract file details for preview or upload
+  const fileDetails = {
+    name: file.name,
+    size: file.size,
+    type: file.type,
+    lastModified: file.lastModified,
+  };
+  
+  console.log("File ready for upload:", fileDetails);
+};
+```
